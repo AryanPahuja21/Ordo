@@ -5,6 +5,7 @@ import { loginSchema, registerSchema } from "../auth/schemas";
 import { createAdminClient } from "@/lib/appwrite";
 import { ID } from "node-appwrite";
 import { AUTH_COOKIE } from "../auth/constants";
+import { sessionMiddleware } from "@/lib/session-middleware";
 
 const app = new Hono()
   .post("/login", zValidator("json", loginSchema), async (c) => {
@@ -43,7 +44,7 @@ const app = new Hono()
 
     return c.json({ success: true });
   })
-  .post("/logout", async (c) => {
+  .post("/logout", sessionMiddleware, async (c) => {
     deleteCookie(c, AUTH_COOKIE);
 
     return c.json({ success: true });
