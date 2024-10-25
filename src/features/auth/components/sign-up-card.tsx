@@ -1,3 +1,5 @@
+"use client";
+
 import { z } from "zod";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
@@ -111,7 +113,7 @@ export const SignUpCard = () => {
               )}
             />
             <Button disabled={false} size="lg" className="w-full">
-              Create Account
+              Register
             </Button>
           </form>
         </Form>
