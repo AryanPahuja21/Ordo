@@ -22,6 +22,7 @@ export const getCurrent = async () => {
 
     return await account.get();
   } catch (e) {
+    console.error(e);
     return null;
   }
 };

@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/logo";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -14,10 +14,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
     <main className="bg-neutral-100 min-h-screen">
       <div className="mx-auto max-w-screen-2xl p-4">
         <nav className="flex justify-between items-center">
-          <div className="flex items-center gap-1">
-            <Image src="/logo.svg" alt="Ordo" width={50} height={50} />
-            <h1 className="text-2xl font-bold font-sans">ORDO</h1>
-          </div>
+          <Logo />
           <Button asChild variant="secondary">
             <Link href={isSignIn ? "/sign-up" : "/sign-in"}>
               {isSignIn ? "Sign up" : "Login"}
