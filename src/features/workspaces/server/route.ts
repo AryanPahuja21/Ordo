@@ -11,6 +11,7 @@ const app = new Hono().post(
   sessionMiddleware,
   async (c) => {
     const databases = c.get("databases");
+    const user = c.get("user");
 
     const { name } = c.req.valid("json");
 
@@ -20,6 +21,7 @@ const app = new Hono().post(
       ID.unique(),
       {
         name,
+        userId: user.$id,
       }
     );
 
