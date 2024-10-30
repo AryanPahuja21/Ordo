@@ -19,8 +19,7 @@ export const getCurrent = async () => {
     const account = new Account(client);
 
     return await account.get();
-  } catch (e) {
-    console.error(e);
+  } catch {
     return null;
   }
 };
