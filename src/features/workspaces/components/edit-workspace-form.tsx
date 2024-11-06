@@ -24,6 +24,8 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Workspace } from "../types";
 import { useUpdateWorkspace } from "../api/use-update-workspace";
+import { useConfirm } from "@/hooks/use-confirm";
+import { useDeleteWorkspace } from "../api/use-delete-workspace";
 
 interface EditWorkspaceFormProps {
   onCancel?: () => void;
@@ -36,6 +38,14 @@ export const EditWorkspaceForm = ({
 }: EditWorkspaceFormProps) => {
   const router = useRouter();
   const { mutate, isPending } = useUpdateWorkspace();
+  const { mutate: deleteWorkspace, isPending: isDeletingWorkspace } =
+    useDeleteWorkspace();
+
+  const [DeleteDialog, confirmDelete] = useConfirm(
+    "Delete Workspace",
+    "Are you sure you want to delete this workspace? This action cannot be undone.",
+    "destructive"
+  );
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,6 +56,21 @@ export const EditWorkspaceForm = ({
       image: initialValues.imageUrl ?? "",
     },
   });
+
+  const handleDelete = async () => {
+    const ok = await confirmDelete();
+
+    if (!ok) return;
+
+    deleteWorkspace(
+      { param: { workspaceId: initialValues.$id } },
+      {
+        onSuccess: () => {
+          window.location.href = "/";
+        },
+      }
+    );
+  };
 
   const onSubmit = (values: z.infer<typeof updateWorkspaceSchema>) => {
     const finalValues = {
@@ -74,6 +99,7 @@ export const EditWorkspaceForm = ({
 
   return (
     <div className="flex flex-col gap-y-4">
+      <DeleteDialog />
       <Button
         className="max-w-32"
         size="sm"
@@ -218,8 +244,8 @@ export const EditWorkspaceForm = ({
               variant="destructive"
               className="mt-6 w-fit ml-auto"
               type="button"
-              disabled={isPending}
-              onClick={() => {}}
+              disabled={isPending || isDeletingWorkspace}
+              onClick={handleDelete}
             >
               Delete Workspace
             </Button>
