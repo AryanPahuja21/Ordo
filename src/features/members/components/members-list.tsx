@@ -16,13 +16,48 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { useDeleteMember } from "../api/use-delete-member";
+import { useUpdateMember } from "../api/use-update-member";
+import { MemberRole } from "../types";
+import { useConfirm } from "@/hooks/use-confirm";
 
 export const MembersList = () => {
   const workspaceId = useWorkspaceId();
+  const [ConfirmDialog, confirm] = useConfirm(
+    "Remove Member",
+    "Are you sure you want to remove this member?",
+    "destructive"
+  );
+
   const { data } = useGetMembers({ workspaceId });
+  const { mutate: deleteMember, isPending: isDeletingMember } =
+    useDeleteMember();
+  const { mutate: updateMember, isPending: isUpdatingMember } =
+    useUpdateMember();
+
+  const handleUpdateMember = (memberId: string, role: MemberRole) => {
+    console.log("Updating Member");
+    updateMember({ param: { memberId }, json: { role } });
+  };
+
+  const handleDeleteMember = async (memberId: string) => {
+    console.log("Deleting Member");
+
+    const ok = await confirm();
+
+    if (!ok) return;
+
+    deleteMember(
+      { param: { memberId } },
+      {
+        onSuccess: () => {},
+      }
+    );
+  };
 
   return (
     <Card className="w-full h-full border-none shadow-none">
+      <ConfirmDialog />
       <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
         <Button asChild variant="secondary" size="sm">
           <Link href={`/workspaces/${workspaceId}`}>
@@ -57,24 +92,28 @@ export const MembersList = () => {
                 <DropdownMenuContent side="bottom" align="end">
                   <DropdownMenuItem
                     className="font-medium"
-                    onClick={() => {}}
-                    disabled={false}
+                    onClick={() =>
+                      handleUpdateMember(member.$id, MemberRole.ADMIN)
+                    }
+                    disabled={isUpdatingMember}
                   >
                     Set as Administrator
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="font-medium"
-                    onClick={() => {}}
-                    disabled={false}
+                    onClick={() =>
+                      handleUpdateMember(member.$id, MemberRole.MEMBER)
+                    }
+                    disabled={isUpdatingMember}
                   >
                     Set as Member
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="font-medium text-amber-700"
-                    onClick={() => {}}
-                    disabled={false}
+                    onClick={() => handleDeleteMember(member.$id)}
+                    disabled={isDeletingMember}
                   >
-                    Remove Member
+                    Remove {member.name}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
