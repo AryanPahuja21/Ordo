@@ -4,29 +4,25 @@ import { DATABASE_ID, PROJECTS_ID } from "@/config";
 import { Project } from "./types";
 
 export const getProject = async ({ projectId }: { projectId: string }) => {
-  try {
-    const { databases, account } = await createSessionClient();
+  const { databases, account } = await createSessionClient();
 
-    const user = await account.get();
+  const user = await account.get();
 
-    const project = await databases.getDocument<Project>(
-      DATABASE_ID,
-      PROJECTS_ID,
-      projectId
-    );
+  const project = await databases.getDocument<Project>(
+    DATABASE_ID,
+    PROJECTS_ID,
+    projectId
+  );
 
-    const member = await getMember({
-      databases,
-      userId: user.$id,
-      workspaceId: project.workspaceId,
-    });
+  const member = await getMember({
+    databases,
+    userId: user.$id,
+    workspaceId: project.workspaceId,
+  });
 
-    if (!member) {
-      return null;
-    }
-
-    return project;
-  } catch {
-    return null;
+  if (!member) {
+    throw new Error("Unauthorized");
   }
+
+  return project;
 };
