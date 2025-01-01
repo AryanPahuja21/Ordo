@@ -36,13 +36,10 @@ export const MembersList = () => {
     useUpdateMember();
 
   const handleUpdateMember = (memberId: string, role: MemberRole) => {
-    console.log("Updating Member");
     updateMember({ param: { memberId }, json: { role } });
   };
 
   const handleDeleteMember = async (memberId: string) => {
-    console.log("Deleting Member");
-
     const ok = await confirm();
 
     if (!ok) return;

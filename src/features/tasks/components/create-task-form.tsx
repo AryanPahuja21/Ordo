@@ -74,7 +74,7 @@ export const CreateTaskForm = ({
       <CardContent className="p-7">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-y-7">
+            <div className="flex flex-col gap-y-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -162,39 +162,6 @@ export const CreateTaskForm = ({
                         </SelectItem>
                         <SelectItem value={TaskStatus.TODO}>Todo</SelectItem>
                         <SelectItem value={TaskStatus.DONE}>Done</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="assigneeId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assignee</FormLabel>
-                    <Select
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select assignee" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <FormMessage />
-                      <SelectContent>
-                        {memberOptions.map((member) => (
-                          <SelectItem key={member.id} value={member.id}>
-                            <div className="flex items-center gap-x-2">
-                              <MemberAvatar
-                                className="size-6"
-                                name={member.name}
-                              />
-                              {member.name}
-                            </div>
-                          </SelectItem>
-                        ))}
                       </SelectContent>
                     </Select>
                   </FormItem>

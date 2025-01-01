@@ -5,8 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusIcon } from "lucide-react";
 import { useCreateTaskModal } from "../hooks/use-create-task-modal";
+import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
+import { useGetTasks } from "../api/use-get-tasks";
 
 const TaskViewSwitcher = () => {
+  const workspaceId = useWorkspaceId();
+  const { data: tasks } = useGetTasks({
+    workspaceId,
+  });
+
   const { open } = useCreateTaskModal();
 
   return (
@@ -34,13 +41,13 @@ const TaskViewSwitcher = () => {
         <DottedSeparator className="my-4" />
         <>
           <TabsContent value="table" className="mt-8">
-            Data table
+            {JSON.stringify(tasks)}
           </TabsContent>
           <TabsContent value="kanban" className="mt-8">
-            Data kanban
+            {JSON.stringify(tasks)}
           </TabsContent>
           <TabsContent value="calendar" className="mt-8">
-            Data calendar
+            {JSON.stringify(tasks)}
           </TabsContent>
         </>
       </div>
