@@ -27,7 +27,7 @@ export const DataFilters = () => {
   const isLoading = isLoadingProjects || isLoadingMembers;
 
   const projectOptions = projects?.documents.map((project) => ({
-    value: project.id,
+    value: project.$id,
     label: project.name,
   }));
 
@@ -44,7 +44,7 @@ export const DataFilters = () => {
   };
 
   const onProjectChange = (value: string) => {
-    setFilters({ projectId: value == "all" ? null : (value as TaskStatus) });
+    setFilters({ projectId: value == "all" ? null : (value as string) });
   };
 
   const onAssigneeChange = (value: string) => {
