@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Task, TaskStatus } from "../types";
-import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "@hello-pangea/dnd";
 import { KanbanColumnHeader } from "./kanban-column-header";
 import { KanbanCard } from "./kanban-card";
 
@@ -21,7 +26,7 @@ interface DataKanbanProps {
 }
 
 export const DataKanban = ({ data }: DataKanbanProps) => {
-  const [tasks] = useState<TasksState>(() => {
+  const [tasks, setTasks] = useState<TasksState>(() => {
     const initialTasks: TasksState = {
       [TaskStatus.BACKLOG]: [],
       [TaskStatus.TODO]: [],
@@ -43,8 +48,85 @@ export const DataKanban = ({ data }: DataKanbanProps) => {
     return initialTasks;
   });
 
+  const onDragEnd = useCallback((result: DropResult) => {
+    if (!result.destination) return;
+
+    const { source, destination } = result;
+    const sourceStatus = source.droppableId as TaskStatus;
+    const destStatus = destination.droppableId as TaskStatus;
+
+    let updatesPayload: {
+      $id: string;
+      status: TaskStatus;
+      position: number;
+    }[] = [];
+
+    setTasks((prevTasks) => {
+      const newTasks = { ...prevTasks };
+
+      const sourceColumn = [...newTasks[sourceStatus]];
+      const [movedTask] = sourceColumn.splice(source.index, 1);
+
+      if (!movedTask) {
+        console.error("No task found at the source index");
+        return prevTasks;
+      }
+
+      const updatedMovedTask =
+        sourceStatus !== destStatus
+          ? {
+              ...movedTask,
+              status: destStatus,
+            }
+          : movedTask;
+
+      newTasks[sourceStatus] = sourceColumn;
+
+      const destColumn = [...newTasks[destStatus]];
+      destColumn.splice(destination.index, 0, updatedMovedTask);
+      newTasks[destStatus] = destColumn;
+
+      updatesPayload = [];
+
+      updatesPayload.push({
+        $id: updatedMovedTask.$id,
+        status: destStatus,
+        position: Math.min((destination.index + 1) * 1000, 1_000_000),
+      });
+
+      newTasks[destStatus].forEach((task, index) => {
+        if (task && task.$id !== updatedMovedTask.$id) {
+          const newPosition = Math.min((index + 1) * 1000, 1_000_000);
+          if (task.position !== newPosition) {
+            updatesPayload.push({
+              $id: task.$id,
+              status: destStatus,
+              position: newPosition,
+            });
+          }
+        }
+      });
+
+      if (sourceStatus !== destStatus) {
+        newTasks[sourceStatus].forEach((task, index) => {
+          if (task && task.$id !== updatedMovedTask.$id) {
+            const newPosition = Math.min((index + 1) * 1000, 1_000_000);
+            if (task.position !== newPosition) {
+              updatesPayload.push({
+                $id: task.$id,
+                status: sourceStatus,
+                position: newPosition,
+              });
+            }
+          }
+        });
+      }
+      return newTasks;
+    });
+  }, []);
+
   return (
-    <DragDropContext onDragEnd={() => {}}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex overflow-x-auto">
         {boards.map((board) => {
           return (
@@ -80,6 +162,7 @@ export const DataKanban = ({ data }: DataKanbanProps) => {
                         )}
                       </Draggable>
                     ))}
+                    {provided.placeholder}
                   </div>
                 )}
               </Droppable>
