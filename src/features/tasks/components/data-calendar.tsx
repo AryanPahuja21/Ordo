@@ -1,6 +1,6 @@
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { Task } from "../types";
-import { enUS, id } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { format, getDay, parse, startOfWeek } from "date-fns";
 import { useState } from "react";
 
@@ -108,7 +108,7 @@ export const DataCalendar = ({ data }: DataCalendarProps) => {
             status={event.status}
           />
         ),
-        toolbar: ({ date }) => (
+        toolbar: () => (
           <CustomToolbar date={value} onNavigate={handleNavigate} />
         ),
       }}
